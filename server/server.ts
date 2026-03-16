@@ -1,0 +1,29 @@
+import express from "express";
+import mongoose from "mongoose";
+import cors from "cors";
+import dotenv from "dotenv";
+import activitiesRouter from "./routes/activities.ts";
+
+dotenv.config();
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+app.use(cors());
+app.use(express.json());
+
+app.use("/api/activities", activitiesRouter);
+
+mongoose
+  .connect(
+    process.env.MONGODB_URI as string,
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    } as any,
+  )
+  .then(() => {
+    console.log("Connected to MongoDB");
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  })
+  .catch((error) => console.error("Error connecting to MongoDB:", error));
