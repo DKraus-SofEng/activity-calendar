@@ -1,0 +1,199 @@
+/* EventForm.module.css - modular styles for EventForm component */
+
+.eventForm {
+  background: var(--accent);
+  border-radius: var(--btn-radius);
+  box-sizing: border-box;
+  font-size: 14px;
+  margin: 6px auto;
+  max-width: 420px;
+  padding: 0.5rem 0.5rem;
+  width: 100%;
+}
+
+.eventInput {
+  background: var(--background);
+  border: 1px solid #bfa2d6;
+  border-radius: 4px;
+  box-sizing: border-box;
+  color: var(--primary);
+  font-family: inherit;
+  font-size: 15px;
+  margin-bottom: 8px;
+  outline: none;
+  padding: 5px 6px;
+  transition: border-color 0.2s;
+}
+.eventInput:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+.eventInput::placeholder {
+  color: #a48bbd;
+  font-family: inherit;
+  font-style: italic;
+}
+
+.eventLabel {
+  color: var(--primary);
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.event-form input[type="date"] {
+  min-width: 115px;
+  max-width: 120px;
+  width: 110px;
+}
+
+/* Removed formBtn, actionBtn, and related button styles. Use Button.module.css for all buttons. */
+
+.chipBtn {
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  color: var(--primary);
+  cursor: pointer;
+  display: inline-block;
+  font-size: 15px;
+  font-weight: bold;
+  margin-right: 4px;
+  padding: 2px 7px;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+.chipBtn:focus,
+.chipBtn:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+.reminderListRow {
+  align-items: center;
+  display: flex;
+  gap: 4px;
+  margin-bottom: 0px;
+}
+.reminderInput {
+  max-width: 140px;
+  min-width: 60px;
+  padding: 5px 6px;
+  width: 125px;
+}
+.reminderInput::placeholder {
+  font-size: 12px;
+}
+.reminderChip {
+  color: var(--primary);
+  font-size: 12px;
+}
+
+.timeRow {
+  align-items: center;
+  display: flex;
+  gap: 4px;
+}
+.toLabel {
+  color: var(--primary);
+  font-weight: 600;
+  line-height: 1.5;
+  margin-bottom: 8px;
+  min-width: 28px;
+  position: relative;
+  text-align: center;
+  top: 0;
+  vertical-align: middle;
+}
+
+.eventFormBtnRow {
+  align-items: flex-end;
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.dateCheckboxRow {
+  align-items: center;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+  margin-bottom: 0.25rem;
+  margin-left: 0;
+  width: auto;
+}
+
+.multiDayCheckboxLabel {
+  align-items: center;
+  color: var(--primary);
+  cursor: pointer;
+  display: flex;
+  font-size: 13px;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  width: auto;
+}
+
+.eventCheckbox {
+  accent-color: var(--primary);
+  background: var(--accent);
+  border: 1px solid var(--primary);
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 0 2px 0 0;
+  padding: 0;
+  width: 16px;
+}
+
+.closeX {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 24px;
+  color: var(--primary);
+  cursor: pointer;
+  font-weight: bold;
+  background: none;
+  border: none;
+  line-height: 1;
+  padding: 0;
+  z-index: 2;
+}
+
+.addDetails {
+  /* Use shared Button.module.css for consistent button styling */
+  background: transparent;
+  border: none;
+  border-radius: var(--btn-radius);
+  color: var(--primary);
+  cursor: pointer;
+  display: inline-block;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  margin-right: 0;
+  padding: 5px 6px;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+.addDetails:focus,
+.addDetails:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+.eventInput.title {
+  width: 100%;
+}
+
+.dateInput {
+  width: 110px;
+  min-width: 100px;
+  max-width: 120px;
+  box-sizing: border-box;
+}

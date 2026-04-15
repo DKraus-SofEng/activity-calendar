@@ -1,0 +1,42 @@
+.eventDetailsForm {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  height: 100%;
+}
+
+.eventTitleInput {
+  width: 100%;
+  border-radius: 6px;
+  border: 1px solid var(--accent);
+  padding: 6px 10px;
+  font-size: 14px;
+  margin-bottom: 4px;
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+.editorContainer {
+  margin-top: 2px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: auto;
+  /* Ensure CKEditor fills available space */
+}
+
+.eventDetailsActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 8px;
+  /*position: sticky;
+  bottom: 0;
+  background: var(--background);
+  z-index: 1;
+  padding-top: 8px;*/
+}
+
+/* Toolbar css is in CustomCKEditor.module.css for modularity and to avoid conflicts) */

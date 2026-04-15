@@ -1,0 +1,95 @@
+/* ============================================================
+   customStyles.css - Jewel Tone Calendar Theme (Light Background)
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   Palette Variables
+   ------------------------------------------------------------ */
+:root {
+  --primary: #6a0572;
+  --accent: #e6e6f7;
+  --danger: #d7263d;
+  --success: #1b998b;
+  --btn-radius: 4px;
+  --btn-shadow: 0 0 8px var(--primary);
+  --background: #f7f7fa;
+  --text-primary: #23234b;
+  --text-secondary: #6a0572;
+}
+
+/* ------------------------------------------------------------
+   Base Styles
+   ------------------------------------------------------------ */
+body {
+  font-family:
+    "Calibri", "Candara", "Franklin Gothic", "Tunga", "Segoe UI", "Verdana",
+    "Arial", sans-serif;
+  background: var(--background);
+}
+
+.calendar-container {
+  background: var(--background);
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(30, 30, 60, 0.08);
+  padding: 2rem;
+}
+
+.rbc-calendar {
+  background: var(--background);
+  color: var(--text-primary);
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(30, 30, 60, 0.08);
+}
+
+.rbc-event {
+  background: linear-gradient(135deg, var(--primary) 0%, #218c5c 100%);
+  color: #fff;
+  border-radius: 8px;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(106, 5, 114, 0.15);
+}
+
+.rbc-selected-cell {
+  background: var(--accent) !important;
+}
+
+.rbc-toolbar {
+  background: var(--background);
+  color: var(--primary);
+  border-radius: 8px;
+}
+
+.rbc-header {
+  background: var(--accent);
+  color: var(--primary);
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.rbc-date-cell {
+  color: var(--primary);
+}
+
+.calendar-toolbar-button {
+  background: var(--accent);
+  color: var(--primary);
+  border: none;
+  border-radius: 8px;
+  padding: 4px 12px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-right: 4px;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+
+.calendar-toolbar-button.active {
+  background: var(--primary);
+  color: #fff;
+}
+
+.calendar-toolbar-button:hover {
+  background: var(--primary);
+  color: #fff;
+}

@@ -1,0 +1,77 @@
+/* Shared button styles for all app action buttons */
+
+.button {
+  background: var(--primary);
+  border: none;
+  border-radius: var(--btn-radius);
+  color: #fff;
+  cursor: pointer;
+  display: inline-block;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  margin-left: 6px;
+  margin-right: 0;
+  padding: 7px 16px;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+.button:focus,
+.button:hover {
+  background: #4b044e;
+  color: #fff;
+  outline: 2px solid #bfa2d6;
+  outline-offset: 2px;
+}
+
+.button.cancel {
+  background: #bfa2d6;
+  color: var(--primary);
+}
+.button.cancel:focus,
+.button.cancel:hover {
+  background: #a48bbd;
+  color: #fff;
+}
+
+.button.delete {
+  background: var(--danger);
+  color: #fff;
+}
+.button.delete:focus,
+.button.delete:hover {
+  background: #b71c1c;
+  color: #fff;
+}
+
+.button.copy {
+  background: var(--accent);
+  color: var(--primary);
+}
+.button.copy:focus,
+.button.copy:hover {
+  background: #bfa2d6;
+  color: #fff;
+}
+
+.button.utility {
+  background: transparent;
+  border: none !important;
+  border-radius: var(--btn-radius) !important;
+  color: var(--primary) !important;
+  cursor: pointer !important;
+  display: inline-block;
+  font-family: inherit;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  margin-bottom: 8px;
+  margin-right: 0 !important;
+  padding: 5px 6px !important;
+  box-shadow: none;
+}
+.button.utility:focus,
+.button.utility:hover {
+  background: var(--accent) !important;
+  color: #4b044e !important;
+}

@@ -1,0 +1,69 @@
+/* Modal.module.css - generic, reusable modal styles */
+
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: var(--background);
+  color: var(--text-primary);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(30, 30, 60, 0.12);
+  padding: 0;
+  overflow: hidden;
+  width: 100%;
+  max-width: 340px;
+  min-width: 300 px;
+  margin: 0 auto;
+  position: relative;
+  overflow: auto;
+}
+
+.detailsModal {
+  max-width: 550px;
+  min-width: 400px;
+  height: 70vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.closeX {
+  position: absolute;
+  top: 16px;
+  right: 6px !important;
+  font-size: 24px;
+  color: var(--primary);
+  cursor: pointer;
+  font-weight: bold;
+  background: none;
+  border: none;
+}
+
+.modal::-webkit-scrollbar {
+  display: none;
+}
+
+.dialogTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--primary);
+  padding-right: 32px;
+  margin: 12px 0 0 12px;
+}
+
+.dialogContent {
+  padding: 10px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+}

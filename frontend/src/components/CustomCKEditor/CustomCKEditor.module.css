@@ -1,0 +1,203 @@
+/* Toolbar css from the CKEditor website - modified */
+@import url("https://fonts.googleapis.com/css2?family=Oswald&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+
+:root {
+  --ck-content-font-family: "Lato";
+  --ck-editor-height: 700px;
+}
+
+.mainContainer {
+  font-family: var(--ck-content-font-family);
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+.editorContainerDocumentEditor {
+  border: 1px solid var(--ck-color-base-border);
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.editorContainerDocumentEditor .editorContainerToolbar {
+  display: flex;
+  position: relative;
+  box-shadow: 0 2px 3px hsla(0, 0%, 0%, 0.078);
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+
+.editorContainerDocumentEditor .editorContainerMenuBar > .ck.ck-menu-bar {
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+}
+
+.editorContainerDocumentEditor .editorContainerEditor {
+  flex: 1 1 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.editorContainerDocumentEditor .editorContainerEditor .ck.ck-editor__editable {
+  box-sizing: border-box;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  padding: 12px !important;
+  border: 1px hsl(0, 0%, 82.7%) solid;
+  background: hsl(0, 0%, 100%);
+  box-shadow: 0 2px 3px hsla(0, 0%, 0%, 0.078);
+  flex: 1 1 auto;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.editorContainerSidebarCkeditorAi:has(.ck-tabs.ck-hidden) {
+  max-width: 0;
+  min-width: 0;
+}
+
+.ck-content h3.category {
+  font-family: "Oswald";
+  font-size: 20px;
+  font-weight: bold;
+  color: #555;
+  letter-spacing: 10px;
+  margin: 0;
+  padding: 0;
+}
+
+.ck-content h2.document-title {
+  font-family: "Oswald";
+  font-size: 50px;
+  font-weight: bold;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.ck-content h3.document-subtitle {
+  font-family: "Oswald";
+  font-size: 20px;
+  color: #555;
+  margin: 0 0 1em;
+  font-weight: bold;
+  padding: 0;
+}
+
+.ck-content p.info-box {
+  --background-size: 30px;
+  --background-color: #e91e63;
+  padding: 1.2em 2em;
+  border: 1px solid var(--background-color);
+  background:
+    linear-gradient(
+      135deg,
+      var(--background-color) 0%,
+      var(--background-color) var(--background-size),
+      transparent var(--background-size)
+    ),
+    linear-gradient(
+      135deg,
+      transparent calc(100% - var(--background-size)),
+      var(--background-color) calc(100% - var(--background-size)),
+      var(--background-color)
+    );
+  border-radius: 10px;
+  margin: 1.5em 2em;
+  box-shadow: 5px 5px 0 #ffe6ef;
+}
+
+.ck-content span.marker {
+  background: yellow;
+}
+
+.ck-content span.spoiler {
+  background: #000;
+  color: #000;
+}
+
+.ck-content span.spoiler:hover {
+  background: #000;
+  color: #fff;
+}
+
+.ck-content .button {
+  display: inline-block;
+  width: 260px;
+  border-radius: 8px;
+  margin: 0 auto;
+  padding: 12px;
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+
+.ck-content .button--green {
+  background-color: #406b1e;
+}
+
+.ck-content .button--black {
+  background-color: #141517;
+}
+
+.editorContainerIncludeStyle {
+}
+
+.editorContainerIncludeFullscreen {
+}
+
+/* Make CKEditor toolbar wrap to multiple rows and reduce button size */
+:global(.ck.ck-toolbar__items) {
+  flex-wrap: wrap !important;
+}
+
+:global(.ck.ck-toolbar .ck-button) {
+  min-width: 10px !important;
+  height: 10px !important;
+  font-size: 9px !important;
+  padding: 2px 4px !important;
+}
+
+:global(.ck.ck-toolbar .ck-button .ck-button__label) {
+  font-size: 9px !important;
+}
+
+:global(.ck.ck-toolbar) {
+  width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box;
+}
+
+:global(.ck.ck-editor__editable_inline) {
+  height: 220px !important;
+  min-height: 220px !important;
+  padding: 8px !important;
+}
+:global(.ck-content) {
+  font-size: 14px !important;
+}
+:global(.ck-content p) {
+  margin-block-start: 0em !important;
+  margin-block-end: 0em !important;
+  margin-top: 0em !important;
+  margin-bottom: 0em !important;
+}
