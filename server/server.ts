@@ -6,6 +6,14 @@ import activitiesRouter from "./routes/activities";
 
 dotenv.config();
 
+// Global error handlers for debugging on Render
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled Rejection:", reason);
+});
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught Exception:", err);
+});
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -23,4 +31,7 @@ mongoose
     console.log("Connected to MongoDB");
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   })
-  .catch((error) => console.error("Error connecting to MongoDB:", error));
+  .catch((error) => {
+    console.error("Error connecting to MongoDB:", error);
+    process.exit(1);
+  });
