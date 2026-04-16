@@ -14,9 +14,10 @@ app.use(express.json());
 
 app.use("/api/activities", activitiesRouter);
 
-mongoose
 console.log("PORT:", PORT);
 console.log("MONGODB_URI:", process.env.MONGODB_URI ? "set" : "NOT SET");
+
+mongoose
   .connect(process.env.MONGODB_URI as string)
   .then(() => {
     console.log("Connected to MongoDB");
