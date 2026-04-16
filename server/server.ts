@@ -28,14 +28,21 @@ try {
   console.log("PORT:", PORT);
   console.log("MONGODB_URI:", process.env.MONGODB_URI ? "set" : "NOT SET");
 
-  mongoose
-    .connect(process.env.MONGODB_URI as string)
+  console.log("Attempting to connect to MongoDB...");
+  const connectPromise = mongoose.connect(process.env.MONGODB_URI as string);
+
+  Promise.race([
+    connectPromise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("MongoDB connection timeout")), 10000),
+    ),
+  ])
     .then(() => {
       console.log("Connected to MongoDB");
       app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
     })
     .catch((error) => {
-      console.error("Error connecting to MongoDB:", error);
+      console.error("Error connecting to MongoDB (or timeout):", error);
       process.exit(1);
     });
 } catch (err) {
