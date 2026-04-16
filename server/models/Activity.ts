@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IActivity extends Document {
-  name: string;
+  title: string;
   details: string;
   date: Date;
   startTime: string;
@@ -15,7 +15,7 @@ export interface IActivity extends Document {
 }
 
 const activitySchema: Schema = new Schema({
-  name: { type: String, required: true },
+  title: { type: String, required: true },
   details: { type: String, required: true },
   date: { type: Date, required: true },
   startTime: { type: String, required: true },

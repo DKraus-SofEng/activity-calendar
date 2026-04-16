@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import styles from "./EventDetails.module.css";
 
 import Button from "../Button/Button";

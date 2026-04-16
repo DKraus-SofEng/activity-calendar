@@ -1,11 +1,12 @@
 // src/api/activitiesApi.ts
 
 const API_URL =
-  process.env.REACT_APP_API_URL || "http://localhost:5000/api/activities";
+  process.env.REACT_APP_API_URL ||
+  "https://activity-calendar.onrender.com/api/activities";
 
 export interface Activity {
   _id?: string;
-  name: string;
+  title: string;
   details: string;
   date: string;
   startTime: string;
