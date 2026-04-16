@@ -4,7 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 // Note: The .ts extension is required for Node.js ES module resolution.
 // TypeScript may show a squiggly, but this is expected and safe to ignore.
-import activitiesRouter from "./routes/activities.ts";
+import activitiesRouter from "./routes/activities";
 
 dotenv.config();
 
