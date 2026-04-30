@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { Calendar, dateFnsLocalizer, Event } from "react-big-calendar";
-import { format } from "date-fns";
-import { parse } from "date-fns";
-import { startOfWeek } from "date-fns/startOfWeek";
-import { getDay } from "date-fns/getDay";
-import { enUS } from "date-fns/locale/en-US";
+import { format, parse } from "date-fns";
+import startOfWeek from "date-fns/startOfWeek";
+import getDay from "date-fns/getDay";
+import enUS from "date-fns/locale/en-US";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import EventForm from "./components/EventForm/EventForm";
 import EventModal from "./components/Modal/Modal";
 import CalendarToolbar from "./components/CalendarToolbar";
+import {
+  fetchActivities,
+  addActivity,
+  updateActivity,
+  deleteActivity,
+  Activity as BackendActivity,
+} from "./api/activitiesApi";
 
 // Setup date-fns localizer
 const locales = { "en-US": enUS };
@@ -30,6 +36,7 @@ const App = () => {
   } | null>(null);
   const clickTimer = React.useRef<NodeJS.Timeout | null>(null);
   const [events, setEvents] = useState<Event[]>([]);
+  const [editingEvent, setEditingEvent] = useState<any | null>(null);
 
   useEffect(() => {
     if (showHint && selectedDate && !showModal) {
@@ -50,6 +57,26 @@ const App = () => {
     }
   }, [showHint, selectedDate, showModal]);
 
+  // Fetch activities from backend on mount
+  useEffect(() => {
+    fetchActivities()
+      .then((activities) => {
+        // Convert backend activities to calendar events
+        setEvents(
+          activities.map((a) => ({
+            id: a._id,
+            start: new Date(a.date + "T" + a.startTime),
+            end: new Date(a.date + "T" + a.endTime),
+            ...a,
+          })),
+        );
+      })
+      .catch((err) => {
+        // Optionally show error
+        console.error("Failed to fetch activities", err);
+      });
+  }, []);
+
   // Single/double click handler for slot
   const handleSelectSlot = (slotInfo: any) => {
     if (clickTimer.current) {
@@ -57,6 +84,7 @@ const App = () => {
       clickTimer.current = null;
       // Double click detected
       setSelectedDate(slotInfo.start);
+      setEditingEvent(null);
       setShowModal(true);
       setShowHint(false);
       return;
@@ -107,6 +135,7 @@ const App = () => {
               {...props}
               onNewEvent={() => {
                 setSelectedDate(null); // No date pre-selected
+                setEditingEvent(null);
                 setShowModal(true);
                 setShowHint(false);
               }}
@@ -116,10 +145,13 @@ const App = () => {
         selectable
         onSelectSlot={handleSelectSlot}
         onSelectEvent={(event) => {
+          // show hint on single select
           setShowHint(true);
         }}
         onDoubleClickEvent={(event) => {
-          setSelectedDate(event.start ?? null);
+          // Open modal for editing the clicked event
+          setEditingEvent(event as any);
+          setSelectedDate((event as any).start ?? null);
           setShowModal(true);
           setShowHint(false);
         }}
@@ -137,21 +169,71 @@ const App = () => {
           return {};
         }}
       />
-      <EventModal open={showModal} onClose={() => setShowModal(false)}>
+      <EventModal
+        open={showModal}
+        onClose={() => {
+          setShowModal(false);
+          setEditingEvent(null);
+        }}
+      >
         <EventForm
-          mode="add"
+          mode={editingEvent ? "edit" : "add"}
           date={selectedDate ?? undefined}
-          onSubmit={(event: any) => {
-            // Append event to state
-            setEvents((prev: Event[]) => [...prev, event]);
+          event={editingEvent ?? undefined}
+          onSubmit={async (event: any) => {
+            // Prepare backend activity
+            const backendActivity: BackendActivity = {
+              title: event.title,
+              details: event.details || "", // Ensure details is always a string
+              date: event.start.split("T")[0],
+              startTime: event.start.split("T")[1],
+              endTime: event.end.split("T")[1],
+              activityType: event.activityType,
+              // reminders: event.reminders, // Remove or add to BackendActivity type if needed
+              // ...add other fields as needed
+            };
+            try {
+              let saved: any;
+              if (editingEvent && editingEvent.id) {
+                saved = await updateActivity(editingEvent.id, backendActivity);
+                setEvents((prev: any[]) =>
+                  prev.map((e) =>
+                    e.id === editingEvent.id
+                      ? {
+                          ...e,
+                          ...event,
+                          id: saved._id,
+                          start: new Date(saved.date + "T" + saved.startTime),
+                          end: new Date(saved.date + "T" + saved.endTime),
+                        }
+                      : e,
+                  ),
+                );
+              } else {
+                saved = await addActivity(backendActivity);
+                setEvents((prev: any[]) => [
+                  ...prev,
+                  {
+                    ...event,
+                    id: saved._id,
+                    start: new Date(saved.date + "T" + saved.startTime),
+                    end: new Date(saved.date + "T" + saved.endTime),
+                  },
+                ]);
+              }
+            } catch (err) {
+              alert("Failed to save event");
+            }
             setShowModal(false);
             setSelectedDate(null);
             setShowHint(false);
+            setEditingEvent(null);
           }}
           onCancel={() => {
             setShowModal(false);
             setSelectedDate(null);
             setShowHint(false);
+            setEditingEvent(null);
           }}
         />
       </EventModal>

@@ -66,7 +66,7 @@ const CalendarToolbar: React.FC<ToolbarProps & { onNewEvent: () => void }> = ({
             marginRight: 8,
           }}
         >
-          <FaChevronLeft color="#95169eff" size={28} />
+          <FaChevronLeft color="#95169eff" size={24} />
         </button>
         <span
           style={{
@@ -88,7 +88,7 @@ const CalendarToolbar: React.FC<ToolbarProps & { onNewEvent: () => void }> = ({
             marginLeft: 8,
           }}
         >
-          <FaChevronRight color="#95169eff" size={28} />
+          <FaChevronRight color="#95169eff" size={24} />
         </button>
       </div>
       {/* Right: New Event button and search bar */}
