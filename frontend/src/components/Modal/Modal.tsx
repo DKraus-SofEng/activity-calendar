@@ -74,18 +74,9 @@ const Modal: React.FC<ModalProps> = ({
   }, [position, draggable]);
 
   if (!open) return null;
-  // Handler for outside click
-  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (wasDragging.current) {
-      wasDragging.current = false;
-      return;
-    }
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
+  // Remove outside click handler so modal never closes on backdrop click
   return (
-    <div className={styles.backdrop} onClick={handleBackdropClick}>
+    <div className={styles.backdrop}>
       <div
         ref={modalRef}
         className={`${styles.modal} ${className || ""}`}

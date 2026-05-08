@@ -66,9 +66,27 @@ const EventForm: React.FC<EventFormProps> = ({
   };
 
   const [title, setTitle] = useState(event?.title || "");
-  const [start, setStart] = useState(getDefaultStart());
-  const [end, setEnd] = useState(getDefaultEnd());
-  const [details, setdetails] = useState(event?.details || "");
+  const [startDate, setStartDate] = useState(
+    typeof event?.date === "string" && event?.date.includes("T")
+      ? event.date.split("T")[0]
+      : typeof event?.date === "string"
+        ? event.date
+        : date
+          ? date.toISOString().split("T")[0]
+          : "",
+  );
+  const [endDate, setEndDate] = useState(
+    typeof event?.endDate === "string" && event?.endDate.includes("T")
+      ? event.endDate.split("T")[0]
+      : typeof event?.endDate === "string"
+        ? event.endDate
+        : date
+          ? date.toISOString().split("T")[0]
+          : "",
+  );
+  const [startTime, setStartTime] = useState(event?.startTime || "");
+  const [endTime, setEndTime] = useState(event?.endTime || "");
+  const [details, setDetails] = useState(event?.details || "");
   const [repeat, setRepeat] = useState(event?.repeat || "none");
   const [reminders, setReminders] = useState(event?.reminders || []);
   const [reminderInput, setReminderInput] = useState("");
@@ -78,10 +96,18 @@ const EventForm: React.FC<EventFormProps> = ({
   );
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [multiDay, setMultiDay] = useState(false);
-  const [endDate, setEndDate] = useState(start.split("T")[0]);
 
-  // Track if user has manually changed end time
-  const [endManuallyChanged, setEndManuallyChanged] = useState(false);
+  // Auto-set endTime to 1 hour after startTime for new events
+  React.useEffect(() => {
+    if (mode === "add" && startTime && !endTime) {
+      const [h, m] = startTime.split(":").map(Number);
+      let endH = h + 1;
+      let endM = m;
+      if (endH >= 24) endH -= 24;
+      const newEndTime = `${endH.toString().padStart(2, "0")}:${endM.toString().padStart(2, "0")}`;
+      setEndTime(newEndTime);
+    }
+  }, [mode, startTime, endTime]);
 
   // Center dialogs on open, but a bit higher
   const mainDialogInitial = {
@@ -92,11 +118,6 @@ const EventForm: React.FC<EventFormProps> = ({
     x: window.innerWidth / 2 - 180,
     y: window.innerHeight / 2 - 120,
   };
-
-  // Reset endManuallyChanged when opening for a new event or when start date changes
-  React.useEffect(() => {
-    setEndManuallyChanged(false);
-  }, [mode, date, event]);
 
   const generateTimeOptions12hr = () => {
     const options = [];
@@ -149,29 +170,103 @@ const EventForm: React.FC<EventFormProps> = ({
   };
 
   function TimeInputCombo({ value, onChange, id, label }: TimeInputComboProps) {
-    // value is always 24hr string (e.g., "18:00")
     const [input, setInput] = useState(value ? format24hrTo12hr(value) : "");
+    const [showDropdown, setShowDropdown] = useState(false);
+    const [lastValid, setLastValid] = useState(
+      value ? format24hrTo12hr(value) : "",
+    );
+    const inputRef = React.useRef<HTMLInputElement>(null);
 
     React.useEffect(() => {
-      setInput(value ? format24hrTo12hr(value) : "");
+      const formatted = value ? format24hrTo12hr(value) : "";
+      setInput(formatted);
+      setLastValid(formatted);
     }, [value]);
 
-    // Dropdown for whole hours
+    // Dropdown for whole hours only
     const hourOptions: string[] = [];
-    for (let h = 1; h <= 12; h++) {
-      hourOptions.push(`${h}:00 AM`);
-      hourOptions.push(`${h}:00 PM`);
+    for (let h = 0; h < 24; h++) {
+      const hour12 = h % 12 === 0 ? 12 : h % 12;
+      const ampm = h < 12 ? "AM" : "PM";
+      hourOptions.push(`${hour12}:00 ${ampm}`);
     }
 
-    const handleDropdown = (e: React.ChangeEvent<HTMLSelectElement>) => {
-      setInput(e.target.value);
-      const parsed = parseTimeInput(e.target.value);
-      if (parsed) onChange(parsed);
+    // Only call onChange if input is a full time with AM/PM, or on blur for h:mm
+    function isFullTime(str: string) {
+      // Accepts h:mm am/pm, hh:mm am/pm, h am/pm, hh am/pm
+      return (
+        /^(\d{1,2}):(\d{2})\s*([ap](m)?)$/i.test(str.trim()) ||
+        /^(\d{1,2})\s*([ap](m)?)$/i.test(str.trim())
+      );
+    }
+    function isHourMinute(str: string) {
+      // Accepts h:mm, hh:mm (no am/pm)
+      return (
+        /^(\d{1,2}):(\d{2})\s*$/i.test(str.trim()) ||
+        /^(\d{1,2}):(\d{2})$/i.test(str.trim())
+      );
+    }
+
+    const handleDropdownSelect = (opt: string, e: React.MouseEvent) => {
+      e.preventDefault(); // Prevent input blur before click
+      setInput(opt);
+      setLastValid(opt);
+      setShowDropdown(false);
+      // Do NOT call onChange here; only update visually
+      setTimeout(() => inputRef.current?.focus(), 0);
     };
 
-    // +/- buttons for 15-min increments
+    const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setInput(e.target.value);
+      // Only call onChange if input is a full time with AM/PM while typing
+      if (isFullTime(e.target.value)) {
+        const parsed = parseTimeInput(e.target.value);
+        if (parsed) {
+          setLastValid(format24hrTo12hr(parsed));
+          // Do NOT call onChange here; only on blur or Enter/Tab
+        }
+      }
+      // Do NOT call onChange for h:mm (no am/pm) while typing
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (
+        (e.key === "Enter" || e.key === "Tab") &&
+        (isHourMinute(input) || isFullTime(input))
+      ) {
+        const parsed = parseTimeInput(input);
+        if (parsed) {
+          setInput(format24hrTo12hr(parsed));
+          setLastValid(format24hrTo12hr(parsed));
+          onChange(parsed);
+        }
+      }
+    };
+
+    const handleInputFocus = () => {
+      setShowDropdown(true);
+    };
+
+    const handleInputBlur = () => {
+      setTimeout(() => setShowDropdown(false), 150); // allow dropdown click
+      if (input === "") return; // allow empty input
+      // On blur, allow h:mm (no am/pm) to default to AM
+      if (isHourMinute(input) || isFullTime(input)) {
+        const parsed = parseTimeInput(input);
+        if (parsed) {
+          setInput(format24hrTo12hr(parsed));
+          setLastValid(format24hrTo12hr(parsed));
+          onChange(parsed); // Always call onChange on blur if valid
+          return;
+        }
+      }
+      setInput(lastValid); // revert to last valid
+    };
+
+    // +/- buttons for 15-min increments (single click only)
     const adjust = (delta: number) => {
       let parsed = parseTimeInput(input);
+      if (!parsed) parsed = value;
       if (!parsed) parsed = "12:00";
       let [h, m] = parsed.split(":").map(Number);
       let total = h * 60 + m + delta;
@@ -180,27 +275,60 @@ const EventForm: React.FC<EventFormProps> = ({
       h = Math.floor(total / 60);
       m = total % 60;
       const newVal = `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
-      setInput(format24hrTo12hr(newVal));
+      const formatted = format24hrTo12hr(newVal);
+      setInput(formatted);
+      setLastValid(formatted);
       onChange(newVal);
     };
 
     return (
-      <span className={styles.timeInputCombo}>
-        <select
-          className={`${styles.eventInput} ${styles.timeDropdown}`}
-          value={hourOptions.find((opt) => opt === input) || ""}
-          onChange={handleDropdown}
-          tabIndex={-1}
-          aria-label={label + " hour dropdown"}
-          size={1}
-        >
-          <option value="">--:--</option>
-          {hourOptions.map((opt) => (
-            <option key={opt} value={opt} className={styles.timeDropdownOption}>
-              {opt}
-            </option>
-          ))}
-        </select>
+      <span className={styles.timeInputCombo} style={{ position: "relative" }}>
+        <input
+          type="text"
+          className={styles.timeTextInput}
+          value={input}
+          onChange={handleInput}
+          onFocus={handleInputFocus}
+          onBlur={handleInputBlur}
+          onKeyDown={handleKeyDown}
+          aria-label={label + " text input"}
+          autoComplete="off"
+          ref={inputRef}
+        />
+        {showDropdown && (
+          <div
+            style={{
+              position: "absolute",
+              top: 28,
+              left: 0,
+              zIndex: 10,
+              background: "#fff",
+              border: "1px solid #ccc",
+              borderRadius: 4,
+              maxHeight: 180,
+              overflowY: "auto",
+              minWidth: 90,
+              boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+            }}
+          >
+            {hourOptions.map((opt) => (
+              <div
+                key={opt}
+                style={{
+                  padding: 2,
+                  cursor: "pointer",
+                  userSelect: "none",
+                  fontSize: "0.97em",
+                  lineHeight: "1.2",
+                }}
+                onMouseDown={(e) => handleDropdownSelect(opt, e)}
+                tabIndex={-1}
+              >
+                {opt}
+              </div>
+            ))}
+          </div>
+        )}
         <button
           type="button"
           tabIndex={-1}
@@ -225,7 +353,6 @@ const EventForm: React.FC<EventFormProps> = ({
 
   return (
     <>
-      {/* Main Event Modal */}
       <Modal
         open={true}
         onClose={onCancel}
@@ -236,14 +363,20 @@ const EventForm: React.FC<EventFormProps> = ({
             className={styles.eventForm}
             onSubmit={(e) => {
               e.preventDefault();
+              // Guard: prevent submit if startDate is missing
+              if (!startDate) {
+                alert("Please select a start date.");
+                return;
+              }
               onSubmit({
                 title,
-                start,
-                end,
                 details,
-                repeat,
-                reminders,
+                date: startDate || "",
+                endDate: endDate || "",
+                startTime,
+                endTime,
                 activityType,
+                reminders,
               });
             }}
           >
@@ -268,12 +401,10 @@ const EventForm: React.FC<EventFormProps> = ({
                 type="date"
                 id="event-date"
                 className={`${styles.eventInput} ${styles.dateInput}`}
-                value={start.split("T")[0]}
+                value={startDate}
                 onChange={(e) => {
-                  const dateStr = e.target.value;
-                  setStart(dateStr + start.slice(start.indexOf("T")));
-                  setEnd(dateStr + end.slice(end.indexOf("T")));
-                  setEndDate(dateStr);
+                  setStartDate(e.target.value);
+                  if (!multiDay) setEndDate(e.target.value);
                 }}
               />
               <label className={styles.multiDayCheckboxLabel}>
@@ -292,10 +423,7 @@ const EventForm: React.FC<EventFormProps> = ({
                   type="date"
                   className={`${styles.eventInput} ${styles.dateInput}`}
                   value={endDate}
-                  onChange={(e) => {
-                    setEndDate(e.target.value);
-                    setEnd(e.target.value + end.slice(end.indexOf("T")));
-                  }}
+                  onChange={(e) => setEndDate(e.target.value)}
                 />
               )}
             </div>
@@ -303,34 +431,19 @@ const EventForm: React.FC<EventFormProps> = ({
             <label htmlFor="event-start-time" className={styles.eventLabel}>
               Start Time:
             </label>
-            <div className={styles.timeRow}>
+            <div className={styles.timeRow} style={{ marginBottom: 12 }}>
               <TimeInputCombo
                 id="event-start-time"
                 label="Start Time"
-                value={start.split("T")[1] || ""}
-                onChange={(val) => {
-                  const dateStr = start.split("T")[0];
-                  setStart(dateStr + "T" + val);
-                  if (!endManuallyChanged) {
-                    // Set end to 1 hour after start
-                    const [h, m] = val.split(":").map(Number);
-                    let endH = h + 1;
-                    let endM = m;
-                    if (endH > 23) endH = 23;
-                    const endTime = `${pad(endH)}:${pad(endM)}`;
-                    setEnd(dateStr + "T" + endTime);
-                  }
-                }}
+                value={startTime}
+                onChange={setStartTime}
               />
               <span className={styles.toLabel}>to</span>
               <TimeInputCombo
                 id="event-end-time"
                 label="End Time"
-                value={end.split("T")[1] || ""}
-                onChange={(val) => {
-                  setEnd(end.split("T")[0] + "T" + val);
-                  setEndManuallyChanged(true);
-                }}
+                value={endTime}
+                onChange={setEndTime}
               />
             </div>
             {/* Repeat and event type on same line, aligned */}
@@ -485,7 +598,7 @@ const EventForm: React.FC<EventFormProps> = ({
               initialContent={details}
               onSave={(newTitle, newDetails) => {
                 setTitle(newTitle);
-                setdetails(newDetails);
+                setDetails(newDetails);
                 setShowDetailsModal(false);
               }}
               onCancel={() => setShowDetailsModal(false)}

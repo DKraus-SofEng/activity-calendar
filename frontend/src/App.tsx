@@ -185,9 +185,9 @@ const App = () => {
             const backendActivity: BackendActivity = {
               title: event.title,
               details: event.details || "", // Ensure details is always a string
-              date: event.start.split("T")[0],
-              startTime: event.start.split("T")[1],
-              endTime: event.end.split("T")[1],
+              date: event.date, // Use date from EventForm
+              startTime: event.startTime,
+              endTime: event.endTime,
               activityType: event.activityType,
               // reminders: event.reminders, // Remove or add to BackendActivity type if needed
               // ...add other fields as needed
