@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Calendar, dateFnsLocalizer, Event } from "react-big-calendar";
+import { Calendar, dateFnsLocalizer, ToolbarProps } from "react-big-calendar";
 import { format, parse } from "date-fns";
 import startOfWeek from "date-fns/startOfWeek";
 import getDay from "date-fns/getDay";
@@ -15,6 +15,24 @@ import {
   deleteActivity,
   Activity as BackendActivity,
 } from "./api/activitiesApi";
+import Event from "./components/Event/Event";
+
+// Define CalEvent interface for calendar events
+export interface CalEvent {
+  id?: string;
+  title?: React.ReactNode;
+  start?: Date;
+  end?: Date;
+  details?: string;
+  date?: string;
+  endDate?: string;
+  startTime?: string;
+  endTime?: string;
+  location?: string;
+  activityType?: string;
+  thumbnailUrl?: string;
+  [key: string]: any;
+}
 
 // Setup date-fns localizer
 const locales = { "en-US": enUS };
@@ -35,8 +53,8 @@ const App = () => {
     left: number;
   } | null>(null);
   const clickTimer = React.useRef<NodeJS.Timeout | null>(null);
-  const [events, setEvents] = useState<Event[]>([]);
-  const [editingEvent, setEditingEvent] = useState<any | null>(null);
+  const [events, setEvents] = useState<CalEvent[]>([]);
+  const [editingEvent, setEditingEvent] = useState<CalEvent | null>(null);
 
   useEffect(() => {
     if (showHint && selectedDate && !showModal) {
@@ -62,14 +80,19 @@ const App = () => {
     fetchActivities()
       .then((activities) => {
         // Convert backend activities to calendar events
-        setEvents(
-          activities.map((a) => ({
+        const mappedEvents = activities.map((a) => {
+          const datePart = a.date.split("T")[0];
+          const endDatePart = a.endDate ? a.endDate.split("T")[0] : datePart;
+          return {
             id: a._id,
-            start: new Date(a.date + "T" + a.startTime),
-            end: new Date(a.date + "T" + a.endTime),
+            start: new Date(datePart + "T" + a.startTime),
+            end: new Date(endDatePart + "T" + a.endTime),
             ...a,
-          })),
-        );
+            thumbnailUrl: a.thumbnailUrl,
+          };
+        });
+        console.log("Mapped events for calendar:", mappedEvents); // Debug log
+        setEvents(mappedEvents);
       })
       .catch((err) => {
         // Optionally show error
@@ -123,14 +146,15 @@ const App = () => {
           Double-click to add a new event.
         </div>
       )}
-      <Calendar
+      <Calendar<CalEvent>
         localizer={localizer}
         events={events}
         startAccessor="start"
         endAccessor="end"
         style={{ height: 500 }}
         components={{
-          toolbar: (props) => (
+          event: Event, // Use custom event component
+          toolbar: (props: ToolbarProps<CalEvent, object>) => (
             <CalendarToolbar
               {...props}
               onNewEvent={() => {
@@ -189,6 +213,7 @@ const App = () => {
               startTime: event.startTime,
               endTime: event.endTime,
               activityType: event.activityType,
+              thumbnailUrl: event.thumbnailUrl,
               // reminders: event.reminders, // Remove or add to BackendActivity type if needed
               // ...add other fields as needed
             };
@@ -204,7 +229,9 @@ const App = () => {
                           ...event,
                           id: saved._id,
                           start: new Date(saved.date + "T" + saved.startTime),
-                          end: new Date(saved.date + "T" + saved.endTime),
+                          end: new Date(
+                            (saved.endDate || saved.date) + "T" + saved.endTime,
+                          ),
                         }
                       : e,
                   ),
@@ -217,7 +244,9 @@ const App = () => {
                     ...event,
                     id: saved._id,
                     start: new Date(saved.date + "T" + saved.startTime),
-                    end: new Date(saved.date + "T" + saved.endTime),
+                    end: new Date(
+                      (saved.endDate || saved.date) + "T" + saved.endTime,
+                    ),
                   },
                 ]);
               }

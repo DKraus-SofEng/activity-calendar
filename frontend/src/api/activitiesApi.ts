@@ -7,16 +7,18 @@ const API_URL =
 export interface Activity {
   _id?: string;
   title: string;
-  details: string;
+  details?: string;
   date: string;
-  startTime: string;
-  endTime: string;
+  endDate?: string; // Add this line for multi-day support
+  startTime?: string; // Now optional
+  endTime?: string; // Now optional
   location?: string;
   imageUrl?: string;
   thumbnailUrl?: string;
   links?: string[];
   activityType?: "Zoom" | "In-person" | "Other";
   tags?: string[];
+  isPlaceholder?: boolean; // For non-event placeholders
 }
 
 export async function fetchActivities(): Promise<Activity[]> {

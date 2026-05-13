@@ -1,0 +1,61 @@
+.eventRoot {
+  display: flex;
+  align-items: flex-start;
+  background: #5b9bd5;
+  color: #fff;
+  border-radius: 6px;
+  padding: 4px 6px;
+  min-height: 40px;
+  position: relative;
+}
+
+.eventIcon {
+  width: 32px;
+  height: 32px;
+  margin-right: 8px;
+  object-fit: cover;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.eventContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.eventType {
+  font-size: 11px;
+  font-weight: bold;
+  margin-right: 4px;
+  color: #ffe699;
+}
+
+.eventTitle {
+  font-size: 13px;
+  font-weight: bold;
+  display: inline;
+}
+
+.eventTime {
+  font-size: 12px;
+  font-weight: bold;
+  margin-top: 2px;
+}
+
+.descriptionButton {
+  margin-top: 4px;
+  font-size: 11px;
+  background: #fff;
+  color: #5b9bd5;
+  border: none;
+  border-radius: 4px;
+  padding: 2px 8px;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: background 0.2s;
+}
+.descriptionButton:hover {
+  background: #e6e6f7;
+}

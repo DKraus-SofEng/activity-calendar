@@ -2,11 +2,11 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface IActivity extends Document {
   title: string;
-  details: string;
+  details?: string;
   date: Date;
   endDate?: Date; // Added for multi-day support
-  startTime: string;
-  endTime: string;
+  startTime?: string; // Optional
+  endTime?: string; // Optional
   location?: string;
   imageUrl?: string;
   thumbnailUrl?: string;
@@ -17,11 +17,11 @@ export interface IActivity extends Document {
 
 const activitySchema: Schema = new Schema({
   title: { type: String, required: true },
-  details: { type: String, required: true },
+  details: { type: String, required: false },
   date: { type: Date, required: true },
   endDate: { type: Date, required: false }, // Added for multi-day support
-  startTime: { type: String, required: true },
-  endTime: { type: String, required: true },
+  startTime: { type: String, required: false }, // Now optional
+  endTime: { type: String, required: false }, // Now optional
   location: { type: String, required: false },
   imageUrl: { type: String, required: false },
   thumbnailUrl: { type: String, required: false },
@@ -37,6 +37,7 @@ const activitySchema: Schema = new Schema({
     default: [],
   },
   tags: [{ type: String, required: false }],
+  isPlaceholder: { type: Boolean, required: false, default: false },
 });
 
 // Prevent duplicate events with same title, date, and startTime

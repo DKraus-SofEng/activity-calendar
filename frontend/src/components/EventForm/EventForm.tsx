@@ -96,6 +96,7 @@ const EventForm: React.FC<EventFormProps> = ({
   );
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [multiDay, setMultiDay] = useState(false);
+  const [thumbnailUrl, setThumbnailUrl] = useState(event?.thumbnailUrl || "");
 
   // Auto-set endTime to 1 hour after startTime for new events
   React.useEffect(() => {
@@ -376,6 +377,7 @@ const EventForm: React.FC<EventFormProps> = ({
                 startTime,
                 endTime,
                 activityType,
+                thumbnailUrl,
                 reminders,
               });
             }}
@@ -392,6 +394,52 @@ const EventForm: React.FC<EventFormProps> = ({
               required
               placeholder="Event title"
             />
+            {/* Thumbnail field below title */}
+            <div className={styles.section}>
+              <label
+                htmlFor="event-thumbnail-url"
+                className={styles.eventLabel}
+              >
+                Thumbnail:
+              </label>
+              <input
+                id="event-thumbnail-url"
+                className={styles.eventInput}
+                type="url"
+                value={thumbnailUrl}
+                onChange={(e) => setThumbnailUrl(e.target.value)}
+                placeholder="Paste image URL or upload below"
+                style={{ marginBottom: 4 }}
+              />
+              <label
+                htmlFor="event-thumbnail-upload"
+                className={styles.fileUploadLabel}
+              >
+                Choose File
+                <input
+                  id="event-thumbnail-upload"
+                  type="file"
+                  accept="image/*"
+                  className={styles.fileUploadInput}
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      if (file.size > 100 * 1024) {
+                        alert(
+                          "Thumbnail file is too large (max 100KB). Please choose a smaller image.",
+                        );
+                        return;
+                      }
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        setThumbnailUrl(reader.result as string);
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+              </label>
+            </div>
             {/* Date label above date row */}
             <label htmlFor="event-date" className={styles.eventLabel}>
               Date:
@@ -448,12 +496,8 @@ const EventForm: React.FC<EventFormProps> = ({
             </div>
             {/* Repeat and event type on same line, aligned */}
             <div
-              style={{
-                display: "flex",
-                gap: 8,
-                marginBottom: 8,
-                alignItems: "flex-end",
-              }}
+              className={styles.section}
+              style={{ display: "flex", gap: 8, alignItems: "flex-end" }}
             >
               <div
                 style={{ display: "flex", flexDirection: "column", flex: 1 }}
@@ -495,7 +539,10 @@ const EventForm: React.FC<EventFormProps> = ({
             <label htmlFor="event-reminder" className={styles.eventLabel}>
               Reminders:
             </label>
-            <div className={styles.reminderListRow}>
+            <div
+              className={styles.reminderListRow}
+              style={{ marginBottom: 12 }}
+            >
               <select
                 id="event-reminder"
                 className={styles.eventInput}
@@ -552,22 +599,18 @@ const EventForm: React.FC<EventFormProps> = ({
                 </span>
               ))}
             </div>
-            {/* Add details button and conditional details field */}
-            <div>
-              <Button
-                type="button"
-                variant="utility"
-                className={styles.addDetails}
-                onClick={() => setShowDetailsModal(true)}
-              >
-                {details ? "Edit Details" : "Add Details"}
-              </Button>
-            </div>
-            {/* Save and Cancel buttons aligned right, moved up */}
+            {/* Save, Cancel, and Add/Edit Details buttons aligned right, moved up */}
             <div className={styles.eventFormBtnRow}>
               <Button type="submit">Save Event</Button>
               <Button type="button" variant="cancel" onClick={onCancel}>
                 Cancel
+              </Button>
+              <Button
+                type="button"
+                variant="cancel"
+                onClick={() => setShowDetailsModal(true)}
+              >
+                {details ? "Edit Details" : "Add Details"}
               </Button>
               {mode === "edit" && onDelete && (
                 <Button type="button" variant="delete" onClick={onDelete}>

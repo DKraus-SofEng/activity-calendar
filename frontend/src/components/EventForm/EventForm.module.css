@@ -246,4 +246,41 @@
   text-align: center;
   font-size: 0.95em;
   height: 28px;
+  font-size: 15px;
+  color: var(--primary);
+  font-family: inherit;
+  background: var(--background);
+  border: 1px solid #bfa2d6;
+  border-radius: 4px;
+  padding: 5px 6px;
+  margin-bottom: 8px;
+}
+
+/* Style for custom file upload button */
+.fileUploadLabel {
+  display: inline-block;
+  background: var(--background-cancel, #f8e6e6);
+  color: var(--primary);
+  border: 1px solid #bfa2d6;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: inherit;
+  padding: 4px 10px;
+  cursor: pointer;
+  margin-bottom: 8px;
+  margin-left: 4px;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+.fileUploadLabel:hover {
+  background: var(--primary);
+  color: #fff;
+}
+.fileUploadInput {
+  display: none;
+}
+
+.section {
+  margin-bottom: 12px;
 }
