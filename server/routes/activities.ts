@@ -32,6 +32,10 @@ router.get("/:id", async (req, res) => {
 // POST create a new activity
 router.post("/", async (req, res) => {
   try {
+    // Only keep endDate if it's present and different from date
+    if (!req.body.endDate || req.body.endDate === req.body.date) {
+      req.body.endDate = undefined;
+    }
     const activity: IActivity = new Activity(req.body);
     await activity.save();
     // Fetch the saved activity to ensure all fields (like defaults, virtuals) are included
@@ -57,6 +61,10 @@ router.post("/", async (req, res) => {
 // PUT update an activity by ID
 router.put("/:id", async (req, res) => {
   try {
+    // Only keep endDate if it's present and different from date
+    if (!req.body.endDate || req.body.endDate === req.body.date) {
+      req.body.endDate = undefined;
+    }
     await Activity.findByIdAndUpdate(req.params.id, req.body);
     // Fetch the updated activity to ensure all fields are included
     const updatedActivity = await Activity.findById(req.params.id);

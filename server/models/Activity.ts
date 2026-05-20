@@ -20,8 +20,8 @@ const activitySchema: Schema = new Schema({
   details: { type: String, required: false },
   date: { type: Date, required: true },
   endDate: { type: Date, required: false }, // Added for multi-day support
-  startTime: { type: String, required: false }, // Now optional
-  endTime: { type: String, required: false }, // Now optional
+  startTime: { type: String, required: false }, // Optional
+  endTime: { type: String, required: false }, // Optional
   location: { type: String, required: false },
   imageUrl: { type: String, required: false },
   thumbnailUrl: { type: String, required: false },
