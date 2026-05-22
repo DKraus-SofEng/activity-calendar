@@ -6,6 +6,29 @@ import Button from "../Button/Button";
 import Modal from "../Modal/Modal"; // Import the custom Modal component
 import { FaPlus, FaMinus } from "react-icons/fa";
 
+// Helper: Pad number to 2 digits
+function pad(n: number) {
+  return n < 10 ? `0${n}` : `${n}`;
+}
+
+// Helper: Format date to YYYY-MM-DD (local time)
+function toISOStringLocal(date: Date) {
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+// Helper: Generate 12-hour time options
+function generateTimeOptions12hr() {
+  const options: string[] = [];
+  for (let h = 0; h < 24; h++) {
+    for (let m = 0; m < 60; m += 15) {
+      const hour = h % 12 === 0 ? 12 : h % 12;
+      const ampm = h < 12 ? "AM" : "PM";
+      options.push(`${pad(hour)}:${pad(m)} ${ampm}`);
+    }
+  }
+  return options;
+}
+
 type EventFormProps = {
   event?: any; // renamed from initialEvent
   mode: "add" | "edit" | "copy";
@@ -25,46 +48,6 @@ const EventForm: React.FC<EventFormProps> = ({
   onCancel,
   date,
 }) => {
-  // Helper for date formatting
-  const pad = (n: number) => n.toString().padStart(2, "0");
-
-  const toISOStringLocal = (d: any) => {
-    if (!d) return "";
-    if (typeof d === "string") return d;
-    // Date object
-    const yyyy = d.getFullYear();
-    const mm = pad(d.getMonth() + 1);
-    const dd = pad(d.getDate());
-    const hh = pad(d.getHours());
-    const min = pad(d.getMinutes());
-    return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
-  };
-
-  // Pre-fill start/end if mode is add and date is provided
-  const getDefaultStart = () => {
-    if (mode === "add" && date) {
-      const yyyy = date.getFullYear();
-      const mm = pad(date.getMonth() + 1);
-      const dd = pad(date.getDate());
-      const hh = pad(date.getHours());
-      const min = pad(date.getMinutes());
-      return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
-    }
-    return toISOStringLocal(event?.start) || "";
-  };
-  const getDefaultEnd = () => {
-    if (mode === "add" && date) {
-      const endDate = new Date(date.getTime() + 60 * 60 * 1000);
-      const yyyy = endDate.getFullYear();
-      const mm = pad(endDate.getMonth() + 1);
-      const dd = pad(endDate.getDate());
-      const hh = pad(endDate.getHours());
-      const min = pad(endDate.getMinutes());
-      return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
-    }
-    return toISOStringLocal(event?.end) || toISOStringLocal(event?.start) || "";
-  };
-
   const [title, setTitle] = useState(event?.title || "");
   const [startDate, setStartDate] = useState(
     typeof event?.date === "string" && event?.date.includes("T")
@@ -95,8 +78,10 @@ const EventForm: React.FC<EventFormProps> = ({
     event?.activityType || "Zoom",
   );
   const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [multiDay, setMultiDay] = useState(false);
-  const [thumbnailUrl, setThumbnailUrl] = useState(event?.thumbnailUrl || "");
+  const [multiDay, setMultiDay] = useState(
+    event?.endDate && event?.endDate !== event?.date ? true : false,
+  );
+  const [thumbnailUrl, setthumbnailUrl] = useState(event?.thumbnailUrl || "");
 
   // Auto-set endTime to 1 hour after startTime for new events
   React.useEffect(() => {
@@ -118,22 +103,6 @@ const EventForm: React.FC<EventFormProps> = ({
   const detailsDialogInitial = {
     x: window.innerWidth / 2 - 180,
     y: window.innerHeight / 2 - 120,
-  };
-
-  const generateTimeOptions12hr = () => {
-    const options = [];
-    for (let h = 0; h < 24; h++) {
-      for (let m = 0; m < 60; m += 15) {
-        const hour12 = h % 12 === 0 ? 12 : h % 12;
-        const ampm = h < 12 ? "AM" : "PM";
-        const min = m.toString().padStart(2, "0");
-        options.push({
-          value: `${pad(h)}:${min}`,
-          label: `${hour12}:${min} ${ampm}`,
-        });
-      }
-    }
-    return options;
   };
 
   // Helper: parse time string (e.g., "6:20 pm", "18:20", "8a", "8p") to 24hr (e.g., "18:20")
@@ -358,7 +327,13 @@ const EventForm: React.FC<EventFormProps> = ({
         open={true}
         onClose={onCancel}
         initialPosition={mainDialogInitial}
-        title="New Event"
+        title={
+          mode === "add"
+            ? "New Event"
+            : mode === "edit"
+              ? "Edit Event"
+              : "Event"
+        }
         content={
           <form
             className={styles.eventForm}
@@ -373,7 +348,7 @@ const EventForm: React.FC<EventFormProps> = ({
                 title,
                 details,
                 date: startDate || "",
-                endDate: endDate || "",
+                endDate: multiDay ? endDate : "", // Only send endDate if multiDay is checked
                 startTime,
                 endTime,
                 activityType,
@@ -407,7 +382,7 @@ const EventForm: React.FC<EventFormProps> = ({
                 className={styles.eventInput}
                 type="url"
                 value={thumbnailUrl}
-                onChange={(e) => setThumbnailUrl(e.target.value)}
+                onChange={(e) => setthumbnailUrl(e.target.value)}
                 placeholder="Paste image URL or upload below"
                 style={{ marginBottom: 4 }}
               />
@@ -432,7 +407,7 @@ const EventForm: React.FC<EventFormProps> = ({
                       }
                       const reader = new FileReader();
                       reader.onloadend = () => {
-                        setThumbnailUrl(reader.result as string);
+                        setthumbnailUrl(reader.result as string);
                       };
                       reader.readAsDataURL(file);
                     }
@@ -460,7 +435,10 @@ const EventForm: React.FC<EventFormProps> = ({
                   type="checkbox"
                   className={styles.eventCheckbox}
                   checked={multiDay}
-                  onChange={() => setMultiDay(!multiDay)}
+                  onChange={() => {
+                    setMultiDay(!multiDay);
+                    if (multiDay) setEndDate(startDate); // If unchecking, set endDate to startDate
+                  }}
                 />
                 <span className={styles.multiDayLabel}>
                   {multiDay ? "thru" : "lasts more than one day"}
@@ -479,7 +457,7 @@ const EventForm: React.FC<EventFormProps> = ({
             <label htmlFor="event-start-time" className={styles.eventLabel}>
               Start Time:
             </label>
-            <div className={styles.timeRow} style={{ marginBottom: 12 }}>
+            <div className={styles.timeRow}>
               <TimeInputCombo
                 id="event-start-time"
                 label="Start Time"
@@ -568,6 +546,7 @@ const EventForm: React.FC<EventFormProps> = ({
               )}
               <Button
                 type="button"
+                className={styles.addReminderBtn}
                 onClick={() => {
                   const value =
                     reminderInput === "Custom" ? customReminder : reminderInput;
@@ -578,7 +557,7 @@ const EventForm: React.FC<EventFormProps> = ({
                   }
                 }}
               >
-                Add
+                Add Reminder
               </Button>
             </div>
             <div className={styles.reminderList}>
@@ -601,27 +580,38 @@ const EventForm: React.FC<EventFormProps> = ({
             </div>
             {/* Save, Cancel, and Add/Edit Details buttons aligned right, moved up */}
             <div className={styles.eventFormBtnRow}>
-              <Button type="submit">Save Event</Button>
-              <Button type="button" variant="cancel" onClick={onCancel}>
-                Cancel
-              </Button>
               <Button
                 type="button"
+                className={styles.addDetailsBtn}
                 variant="cancel"
                 onClick={() => setShowDetailsModal(true)}
               >
-                {details ? "Edit Details" : "Add Details"}
+                Details
               </Button>
-              {mode === "edit" && onDelete && (
-                <Button type="button" variant="delete" onClick={onDelete}>
-                  Delete
-                </Button>
-              )}
-              {mode === "edit" && onCopy && (
-                <Button type="button" variant="copy" onClick={onCopy}>
+              {onCopy && (
+                <Button
+                  type="button"
+                  className={styles.copyBtn}
+                  variant="copy"
+                  onClick={onCopy}
+                >
                   Copy
                 </Button>
               )}
+              <Button type="button" variant="cancel" onClick={onCancel}>
+                Cancel
+              </Button>
+              {onDelete && (
+                <Button
+                  type="button"
+                  className={styles.deleteBtn}
+                  variant="delete"
+                  onClick={onDelete}
+                >
+                  Delete
+                </Button>
+              )}
+              <Button type="submit">Save</Button>
             </div>
           </form>
         }

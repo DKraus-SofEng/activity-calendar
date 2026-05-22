@@ -36,16 +36,3 @@
     transform: rotate(360deg);
   }
 }
-
-.rbc-month-row {
-  min-height: 100px;
-}
-
-.rbc-date-cell {
-  height: 100%;
-  min-height: 100px;
-}
-
-.rbc-event {
-  min-height: 40px; /* Adjust as needed for your event content */
-}

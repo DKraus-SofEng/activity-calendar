@@ -8,11 +8,11 @@
   cursor: pointer;
   display: inline-block;
   font-family: inherit;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   margin-left: 6px;
   margin-right: 0;
-  padding: 7px 16px;
+  padding: 6px;
   transition:
     background 0.2s,
     color 0.2s;
@@ -25,33 +25,19 @@
   outline-offset: 2px;
 }
 
-.button.cancel {
+.button.cancel,
+.button.delete,
+.button.copy {
   background: #bfa2d6;
   color: var(--primary);
 }
 .button.cancel:focus,
-.button.cancel:hover {
-  background: #a48bbd;
-  color: #fff;
-}
-
-.button.delete {
-  background: var(--danger);
-  color: #fff;
-}
+.button.cancel:hover,
 .button.delete:focus,
-.button.delete:hover {
-  background: #b71c1c;
-  color: #fff;
-}
-
-.button.copy {
-  background: var(--accent);
-  color: var(--primary);
-}
+.button.delete:hover,
 .button.copy:focus,
 .button.copy:hover {
-  background: #bfa2d6;
+  background: #a48bbd;
   color: #fff;
 }
 
@@ -63,7 +49,7 @@
   cursor: pointer !important;
   display: inline-block;
   font-family: inherit;
-  font-size: 15px !important;
+  font-size: 14px !important;
   font-weight: 600 !important;
   margin-bottom: 8px;
   margin-right: 0 !important;

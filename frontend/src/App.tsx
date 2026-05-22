@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Calendar, dateFnsLocalizer, ToolbarProps } from "react-big-calendar";
+import withDragAndDrop from "react-big-calendar/lib/addons/dragAndDrop";
+import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import { format, parse } from "date-fns";
 import startOfWeek from "date-fns/startOfWeek";
 import getDay from "date-fns/getDay";
@@ -16,6 +18,7 @@ import {
   Activity as BackendActivity,
 } from "./api/activitiesApi";
 import Event from "./components/Event/Event";
+import Button from "./components/Button/Button";
 
 // Define CalEvent interface for calendar events
 export interface CalEvent {
@@ -33,6 +36,8 @@ export interface CalEvent {
   thumbnailUrl?: string;
   [key: string]: any;
 }
+
+const DnDCalendar = withDragAndDrop(Calendar);
 
 // Setup date-fns localizer
 const locales = { "en-US": enUS };
@@ -82,16 +87,21 @@ const App = () => {
         // Convert backend activities to calendar events
         const mappedEvents = activities.map((a) => {
           const datePart = a.date.split("T")[0];
-          const endDatePart = a.endDate ? a.endDate.split("T")[0] : datePart;
+          const endDatePart =
+            !a.endDate || a.endDate.split("T")[0] === datePart
+              ? datePart
+              : a.endDate.split("T")[0];
+          // Fallback to "00:00" if time is missing
+          const startTime = a.startTime || "00:00";
+          const endTime = a.endTime || startTime;
           return {
             id: a._id,
-            start: new Date(datePart + "T" + a.startTime),
-            end: new Date(endDatePart + "T" + a.endTime),
+            start: new Date(datePart + "T" + startTime),
+            end: new Date(endDatePart + "T" + endTime),
             ...a,
             thumbnailUrl: a.thumbnailUrl,
           };
         });
-        console.log("Mapped events for calendar:", mappedEvents); // Debug log
         setEvents(mappedEvents);
       })
       .catch((err) => {
@@ -121,8 +131,68 @@ const App = () => {
     }, 250); // 250ms window for double click
   };
 
+  const handleEventDrop = ({ event, start, end, allDay }: any) => {
+    // Update event's date fields for single or multi-day
+    const newDate = start.toISOString().slice(0, 10);
+    const newEndDate = end.toISOString().slice(0, 10);
+    const updatedEvent = {
+      ...event,
+      start,
+      end,
+      date: newDate,
+      endDate: newEndDate !== newDate ? newEndDate : undefined,
+      startTime: start.toISOString().slice(11, 16),
+      endTime: end.toISOString().slice(11, 16),
+    };
+
+    updateActivity(event.id, {
+      ...event,
+      date: updatedEvent.date,
+      endDate: updatedEvent.endDate,
+      startTime: updatedEvent.startTime,
+      endTime: updatedEvent.endTime,
+    })
+      .then(() => {
+        setEvents((prevEvents) =>
+          prevEvents.map((e) =>
+            e.id === event.id ? { ...e, ...updatedEvent } : e,
+          ),
+        );
+      })
+      .catch((err) => {
+        alert("Failed to update event position");
+        console.error(err);
+      });
+  };
+
+  // Handlers for delete and copy
+  const handleDelete = async () => {
+    if (editingEvent && editingEvent.id) {
+      await deleteActivity(editingEvent.id);
+      setEvents((prev) => prev.filter((e) => e.id !== editingEvent.id));
+      setShowModal(false);
+      setEditingEvent(null);
+    }
+  };
+
+  const handleCopy = () => {
+    if (!editingEvent) return;
+    setEditingEvent(null);
+    setShowModal(true);
+    setTimeout(() => {
+      setEditingEvent({
+        ...editingEvent,
+        id: undefined,
+        title: `${editingEvent.title} (Copy)`,
+      });
+    }, 0);
+  };
+
   return (
-    <div style={{ height: "100vh", padding: "2rem", position: "relative" }}>
+    <div
+      className="calendar-container"
+      style={{ height: "900px", padding: "2rem", position: "relative" }}
+    >
       {/* Tooltip pop-up near selected date */}
       {tooltipPos && (
         <div
@@ -146,12 +216,11 @@ const App = () => {
           Double-click to add a new event.
         </div>
       )}
-      <Calendar<CalEvent>
+      <DnDCalendar
         localizer={localizer}
         events={events}
-        startAccessor="start"
-        endAccessor="end"
-        style={{ height: 500 }}
+        startAccessor={(event: CalEvent) => event.start ?? new Date()}
+        endAccessor={(event: CalEvent) => event.end ?? new Date()}
         components={{
           event: Event, // Use custom event component
           toolbar: (props: ToolbarProps<CalEvent, object>) => (
@@ -171,6 +240,7 @@ const App = () => {
         onSelectEvent={(event) => {
           // show hint on single select
           setShowHint(true);
+          setEditingEvent(event as any); // Ensure editingEvent is set so modal buttons show
         }}
         onDoubleClickEvent={(event) => {
           // Open modal for editing the clicked event
@@ -192,6 +262,7 @@ const App = () => {
           }
           return {};
         }}
+        onEventDrop={handleEventDrop}
       />
       <EventModal
         open={showModal}
@@ -208,13 +279,16 @@ const App = () => {
             // Prepare backend activity
             const backendActivity: BackendActivity = {
               title: event.title,
-              details: event.details || "", // Ensure details is always a string
-              date: event.date, // Use date from EventForm
+              details: event.details || "",
+              date: event.date,
               startTime: event.startTime,
               endTime: event.endTime,
               activityType: event.activityType,
               thumbnailUrl: event.thumbnailUrl,
-              // reminders: event.reminders, // Remove or add to BackendActivity type if needed
+              // Only include endDate if it's present and different from date
+              ...(event.endDate && event.endDate !== event.date
+                ? { endDate: event.endDate }
+                : {}),
               // ...add other fields as needed
             };
             try {
@@ -222,30 +296,43 @@ const App = () => {
               if (editingEvent && editingEvent.id) {
                 saved = await updateActivity(editingEvent.id, backendActivity);
                 setEvents((prev: any[]) =>
-                  prev.map((e) =>
-                    e.id === editingEvent.id
+                  prev.map((e) => {
+                    // Use saved.date and saved.endDate, but if endDate is missing or same as date, treat as single-day
+                    const startDateStr = saved.date;
+                    const endDateStr =
+                      !saved.endDate || saved.endDate === saved.date
+                        ? saved.date
+                        : saved.endDate;
+                    return e.id === editingEvent.id
                       ? {
                           ...e,
                           ...event,
                           id: saved._id,
-                          start: new Date(saved.date + "T" + saved.startTime),
-                          end: new Date(
-                            (saved.endDate || saved.date) + "T" + saved.endTime,
-                          ),
+                          start: new Date(startDateStr + "T" + saved.startTime),
+                          end: new Date(endDateStr + "T" + saved.endTime),
                         }
-                      : e,
-                  ),
+                      : e;
+                  }),
                 );
               } else {
                 saved = await addActivity(backendActivity);
                 setEvents((prev: any[]) => [
                   ...prev,
                   {
-                    ...event,
+                    ...saved,
                     id: saved._id,
-                    start: new Date(saved.date + "T" + saved.startTime),
+                    start: new Date(
+                      saved.date.split("T")[0] +
+                        "T" +
+                        (saved.startTime || "00:00"),
+                    ),
                     end: new Date(
-                      (saved.endDate || saved.date) + "T" + saved.endTime,
+                      (!saved.endDate || saved.endDate === saved.date
+                        ? saved.date
+                        : saved.endDate
+                      ).split("T")[0] +
+                        "T" +
+                        (saved.endTime || saved.startTime || "00:00"),
                     ),
                   },
                 ]);
@@ -264,6 +351,8 @@ const App = () => {
             setShowHint(false);
             setEditingEvent(null);
           }}
+          onDelete={editingEvent ? handleDelete : undefined}
+          onCopy={editingEvent ? handleCopy : undefined}
         />
       </EventModal>
     </div>

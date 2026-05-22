@@ -1,11 +1,9 @@
-/* EventForm.module.css - modular styles for EventForm component */
-
 .eventForm {
   background: var(--accent);
   border-radius: var(--btn-radius);
   box-sizing: border-box;
   font-size: 14px;
-  margin: 6px auto;
+
   max-width: 420px;
   padding: 0.5rem 0.5rem;
   width: 100%;
@@ -18,8 +16,8 @@
   box-sizing: border-box;
   color: var(--primary);
   font-family: inherit;
-  font-size: 15px;
-  margin-bottom: 8px;
+  font-size: 14px;
+  margin-bottom: 6px;
   outline: none;
   padding: 5px 6px;
   transition: border-color 0.2s;
@@ -42,12 +40,10 @@
   margin-bottom: 2px;
 }
 .event-form input[type="date"] {
-  min-width: 115px;
+  min-width: 114px;
   max-width: 120px;
   width: 110px;
 }
-
-/* Removed formBtn, actionBtn, and related button styles. Use Button.module.css for all buttons. */
 
 .chipBtn {
   background: var(--accent);
@@ -56,7 +52,7 @@
   color: var(--primary);
   cursor: pointer;
   display: inline-block;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: bold;
   margin-right: 4px;
   padding: 2px 7px;
@@ -94,6 +90,7 @@
   align-items: center;
   display: flex;
   gap: 4px;
+  margin-bottom: 6px;
 }
 .toLabel {
   color: var(--primary);
@@ -110,79 +107,34 @@
 .eventFormBtnRow {
   align-items: flex-end;
   display: flex;
-  gap: 4px;
-  justify-content: flex-end;
+  gap: 2px;
+  justify-content: flex-start;
   margin-top: 12px;
 }
-
-.dateCheckboxRow {
-  align-items: center;
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 6px;
-  margin-bottom: 0.25rem;
-  margin-left: 0;
-  width: auto;
+.eventFormBtnRow button {
+  min-width: 52px;
 }
 
-.multiDayCheckboxLabel {
-  align-items: center;
-  color: var(--primary);
-  cursor: pointer;
-  display: flex;
-  font-size: 13px;
-  margin: 0;
-  padding: 0;
-  user-select: none;
-  width: auto;
-}
-
-.eventCheckbox {
-  accent-color: var(--primary);
-  background: var(--accent);
-  border: 1px solid var(--primary);
-  border-radius: 4px;
-  cursor: pointer;
-  margin: 0 2px 0 0;
-  padding: 0;
-  width: 16px;
-}
-
-.closeX {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  font-size: 24px;
-  color: var(--primary);
-  cursor: pointer;
-  font-weight: bold;
-  background: none;
-  border: none;
-  line-height: 1;
-  padding: 0;
-  z-index: 2;
-}
-
-.addDetails {
-  /* Use shared Button.module.css for consistent button styling */
-  background: transparent;
-  border: none;
-  border-radius: var(--btn-radius);
-  color: var(--primary);
-  cursor: pointer;
+/* "Add Reminder button styles to match "Choose File" button */
+.addReminderBtn {
   display: inline-block;
+  background: var(--background-cancel, #f8e6e6);
+  color: var(--primary);
+  border: 1px solid #bfa2d6;
+  border-radius: 4px;
+  font-size: 13px;
   font-family: inherit;
-  font-size: 15px;
-  font-weight: 600;
+  padding: 4px 10px;
+  cursor: pointer;
   margin-bottom: 8px;
-  margin-right: 0;
-  padding: 5px 6px;
+  margin-left: 4px;
   transition:
     background 0.2s,
     color 0.2s;
+  height: 32px;
+  min-width: 110px;
 }
-.addDetails:focus,
-.addDetails:hover {
+.addReminderBtn:hover {
   background: var(--primary);
   color: #fff;
 }
@@ -246,17 +198,15 @@
   text-align: center;
   font-size: 0.95em;
   height: 28px;
-  font-size: 15px;
+  font-size: 14px;
   color: var(--primary);
   font-family: inherit;
   background: var(--background);
   border: 1px solid #bfa2d6;
   border-radius: 4px;
-  padding: 5px 6px;
-  margin-bottom: 8px;
 }
 
-/* Style for custom file upload button */
+/* File upload "Choose File" button */
 .fileUploadLabel {
   display: inline-block;
   background: var(--background-cancel, #f8e6e6);
@@ -279,8 +229,4 @@
 }
 .fileUploadInput {
   display: none;
-}
-
-.section {
-  margin-bottom: 12px;
 }

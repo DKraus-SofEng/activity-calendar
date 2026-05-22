@@ -42,11 +42,10 @@ body {
 }
 
 .rbc-event {
-  background: linear-gradient(135deg, var(--primary) 0%, #218c5c 100%);
   color: #fff;
   border-radius: 8px;
   font-weight: bold;
-  box-shadow: 0 2px 8px rgba(106, 5, 114, 0.15);
+  box-shadow: none;
 }
 
 .rbc-selected-cell {

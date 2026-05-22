@@ -1,20 +1,27 @@
 import React from "react";
 import styles from "./Event.module.css";
 
+function formatTime12hr(time: string) {
+  if (!time) return "";
+  const [h, m] = time.split(":").map(Number);
+  const ampm = h >= 12 ? "PM" : "AM";
+  const hour12 = h % 12 === 0 ? 12 : h % 12;
+  return `${hour12}:${m.toString().padStart(2, "0")} ${ampm}`;
+}
+
 const Event = ({ event }: { event: any }) => (
   <div className={styles.eventRoot}>
-    {event.thumbnailURL && (
-      <img src={event.thumbnailURL} alt="" className={styles.eventIcon} />
+    {event.thumbnailUrl && (
+      <img src={event.thumbnailUrl} alt="" className={styles.eventIcon} />
     )}
 
     <div className={styles.eventContent}>
       <div>
-        <span className={styles.eventType}>{event.activityType}</span>
         <b className={styles.eventTitle}>{event.title}</b>
       </div>
       {event.startTime && event.endTime && (
         <div className={styles.eventTime}>
-          {event.startTime} - {event.endTime}
+          {formatTime12hr(event.startTime)} - {formatTime12hr(event.endTime)}
         </div>
       )}
       <button
